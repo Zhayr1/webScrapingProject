@@ -1,24 +1,33 @@
 from django.shortcuts import render
-from .utils import get_article_from_keyword
 from .models import KeywordsResultsReport
+from .tasks import start_scraping_task, process_scraping_request_task
+from .utils import send_message
 
-# Create your views here.
+
 def articleScrapingView(request):
     template_name = "articleScrapingView.html"
     if request.POST:
-        # print(f"Request POST {request.POST}")
-        # print(f"Request Files {request.FILES}")
-        file = request.FILES['keywords_file']
-        articles_number = int(request.POST['articles_number'])  
-        keywords = str(file.read().decode('UTF-8'))
-        keywords = keywords.splitlines()
-        krp = KeywordsResultsReport(keywords=keywords, number_of_articles=articles_number)
-        krp.save()
-        for kw in keywords:
-            print(f"kw: {kw}")
-            for i in range(articles_number):
-                res = get_article_from_keyword(kw, krp)
-                print(res)
-        return render(request, template_name, {'success':'True'})
-    else:    
-        return render(request, template_name, {})
+        try:
+            file = request.FILES['keywords_file']
+            keywords = str(file.read().decode('UTF-8'))
+            keywords = keywords.splitlines()
+        except Exception as e:
+            print(f"ex: {e}")
+            return render(request, template_name, {'error':'you must attach a keyword_file.txt'})
+        try:    
+            articles_number = int(request.POST['articles_number'])
+        except:
+            return render(request, template_name, {'error':"articles number can't be empty"})    
+        # print(f"Task test: {add.delay(2,3)}")
+        post_data = {
+            "keywords": keywords,
+            "articles_number": articles_number
+        }
+        process_scraping_request_task.delay(post_data)
+        return render(request, template_name, {
+            'success':'True',
+            'total_keywords': len(keywords),
+            'articles_per_keyword': articles_number
+        })
+
+    return render(request, template_name, {})

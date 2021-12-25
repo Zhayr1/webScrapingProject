@@ -20,10 +20,13 @@ class SingleKeywordReport(models.Model):
         
         try:
             path = f"{directory}{self.keyword.replace(' ', '_')}"
-            os.mkdir(path)
+            try:
+                os.mkdir(path)
+            except:
+                pass    
             print(f"Path: {path}")
             print(f"FilePath: {path}/{self.keyword.replace(' ','_')}")
-            f = open(f"{path}/{self.keyword.replace(' ','_')}.txt", "a")
+            f = open(f"{path}/{self.id}_{self.keyword.replace(' ','_')}.txt", "a")
             f.write(f"{self.article_title}\n\n\n{self.article_body}")
             f.close()
             return True

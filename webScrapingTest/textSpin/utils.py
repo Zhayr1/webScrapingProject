@@ -4,6 +4,17 @@ from .models import KeywordsResultsReport, SingleKeywordReport
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.options import Options
+import json
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+def send_message(channel_name:str, type:str, payload_type, payload:dict):
+    channel_layer = get_channel_layer()
+    payload['type'] = payload_type
+    async_to_sync(channel_layer.group_send)(channel_name, {
+            'type': f'{type}',
+            'payload': payload
+    })
 
 def get_paraphrased_text(text:str, driver:webdriver.Firefox, url:str):
     for i in range(3):
@@ -30,24 +41,19 @@ def get_paraphrased_text(text:str, driver:webdriver.Firefox, url:str):
     return None       
 
 import time
-import re
 
 def selenium_get_paraphrased_article(object:SingleKeywordReport, url:str):
     try:
         options = Options()
-        # options.headless = True
-        # options.add_argument("--window-size=1920,1080")
+        options.headless = True
+        # # options.add_argument("--window-size=1920,1080")
         driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
-        print("Start spin title")
         spin_title = get_paraphrased_text(object.article_title, driver, url)
         time.sleep(3)
-        print(f"Spin title: {spin_title}")
-        print("end Spin Title and start spin body")
         spin_body = get_paraphrased_text(object.article_body, driver, url)
         time.sleep(3)
-        # print(f"End spin body: {spin_body}")
-        print(f"Old Text: {object.article_title}")
-        print(f"Result Text: {spin_title}")
+        # print(f"Old Text: {object.article_title}")
+        # print(f"Result Text: {spin_title}")
         if spin_title:
             object.article_title = spin_title
         if spin_body:    
@@ -110,15 +116,45 @@ def get_article_from_keyword(keyword:str, keyword_result_report:KeywordsResultsR
         else:
             pageCounter += 10
     skr = SingleKeywordReport(report=keyword_result_report,keyword="", article_title="", article_body="")
+    # options = Options()
+    # options.headless = True
+    # driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
     for link in val_links:
         res = get_title_and_body_from_url(link, keyword, skr)
         seoToolUrl = "https://seotoolscentre.com/paraphrase-tool"
         res = selenium_get_paraphrased_article(res, seoToolUrl)
         if res:
             file_was_created = res.create_article_file()
+            if file_was_created:
+                send_message('test1234', 'send.message', 'article_spun', { "article_spun": True })
             return file_was_created
     return None        
 
+from bs4.element import Comment
+
+def tag_visible(element):
+    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+        return False
+    if isinstance(element, Comment):
+        return False
+    return True
+
+def text_from_html(body):
+    soup = BeautifulSoup(body, 'html.parser')
+    texts = soup.findAll(text=True)
+    visible_texts = filter(tag_visible, texts)
+    return u" ".join(t.strip() for t in visible_texts)
+
+def get_article_images(url):
+    res = get_request(url)
+    div_id = "mmComponent_images_2"
+    if res.status_code != 200:
+        return None
+    soup = BeautifulSoup(res.content, 'html.parser')
+    imgs = soup.find_all('img')
+    for img in imgs:
+        print(img)
+    pass
 
 def get_title_and_body_from_url(url:str, keyword:str, single_report:SingleKeywordReport):
     res = get_request(url)
@@ -126,7 +162,7 @@ def get_title_and_body_from_url(url:str, keyword:str, single_report:SingleKeywor
         return None
     soup = BeautifulSoup(res.content, 'html.parser')
     title = soup.title.string
-    body = soup.get_text().strip()
+    body = text_from_html(res.content)
     # print(soup.body)
     single_report.keyword = keyword
     single_report.article_title = title
@@ -144,3 +180,58 @@ def get_request(url):
     'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
     }
     return requests.get(url, headers=headers)
+
+from datetime import date, datetime
+
+def get_and_save_images(keyword:str, articles_number:int):
+    keyword = keyword.replace(' ','+')
+    url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first=1"
+    img_urls = get_article_images(url, articles_number*3)
+
+    path = f"media/articles/{keyword.replace('+', '_')}"
+    try:
+        os.mkdir(path)
+    except:
+        pass
+    if img_urls:
+        for i in range(len(img_urls)):
+            url = img_urls[i]
+            img_name = keyword.replace('+','_')
+            img_format = get_format(url)
+
+            fetch_image(url, f"media/articles/{img_name}/{datetime.now()}_{img_name}.{img_format}")
+
+import os
+def get_article_images(url, n_images):
+    res = get_request(url)
+    if res.status_code != 200:
+        return None
+    soup = BeautifulSoup(res.content, 'html.parser')
+    imgs = soup.find_all()
+    murls = []
+    for img in imgs:
+        if img.get('m'):
+            mdata = json.loads(img.get('m'))
+            if len(murls) < n_images:
+                murls.append(mdata['murl'])
+    return murls            
+
+import requests
+from io import open as iopen
+ 
+def fetch_image(img_ur, save_filename):
+    img = requests.get(img_ur)
+    if img.status_code == 200:
+        with iopen(save_filename, 'wb') as f:
+            f.write(img.content)
+    else:
+        print('Received error: {}'.format(img.status_code))
+ 
+
+def get_format(url:str) -> str:
+    if url.count('.jpg') > 0:
+        return 'jpg'
+    elif url.count('.png') > 0:
+        return 'png'
+    else:
+        return 'jpg'
