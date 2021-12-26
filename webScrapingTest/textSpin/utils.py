@@ -7,6 +7,7 @@ from selenium.webdriver.firefox.options import Options
 import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from urllib.parse import urlparse 
 
 def send_message(channel_name:str, type:str, payload_type, payload:dict):
     channel_layer = get_channel_layer()
@@ -86,11 +87,15 @@ def get_links(url):
     return links    
 
 def validate_links(links, spinLinks):
-    difference = list(set(links) - set(spinLinks))
-    if difference:
-        return difference
-    else:
-        return None    
+    val_links = []
+    for link in links:
+        for spinLink in spinLinks:
+            if spinLink:
+                if spinLink in link:
+                    print(f"{spinLink} in {link} = {spinLink in link}")
+                    break
+        val_links.append(link)
+    return val_links
 
 def get_article_from_keyword(keyword:str, keyword_result_report:KeywordsResultsReport):
     try:
@@ -98,13 +103,15 @@ def get_article_from_keyword(keyword:str, keyword_result_report:KeywordsResultsR
             lines = f.readlines()
         if lines:    
             lines = lines[0].split(',')
-            print(f"Lines: {lines}")
+            # print(f"Lines: {lines}")
     except:
         lines = []
     query = keyword.replace(' ','+')
     pageCounter = 1
     val_links = []
+    print("start to get and validate links")
     for i in range(1000):
+        print(f'for iterations por links {i}')
         url = f"https://www.bing.com/search?q={query}+site%3Awordpress.com&first={pageCounter}"
         links = get_links(url)
         if not links:
@@ -119,6 +126,7 @@ def get_article_from_keyword(keyword:str, keyword_result_report:KeywordsResultsR
     # options = Options()
     # options.headless = True
     # driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    print("start selenium part")
     for link in val_links:
         res = get_title_and_body_from_url(link, keyword, skr)
         seoToolUrl = "https://seotoolscentre.com/paraphrase-tool"
@@ -156,6 +164,13 @@ def get_article_images(url):
         print(img)
     pass
 
+
+def get_root_domain(url):
+    parsed_uri = urlparse(url) 
+    domain = '{uri.netloc}'.format(uri=parsed_uri)
+    result = domain.replace('www.', '')  # as per your case
+    return result
+
 def get_title_and_body_from_url(url:str, keyword:str, single_report:SingleKeywordReport):
     res = get_request(url)
     if res.status_code != 200:
@@ -171,7 +186,7 @@ def get_title_and_body_from_url(url:str, keyword:str, single_report:SingleKeywor
     # skr = SingleKeywordReport(keyword=keyword, article_title=title, article_body=body)
     # print(skr.article_title)
     f = open("spin.txt", "a")
-    f.write(f"{url},")
+    f.write(f"{get_root_domain(url)},")
     f.close()
     return single_report
 

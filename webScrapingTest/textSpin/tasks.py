@@ -12,7 +12,9 @@ def process_scraping_request_task(post_data):
         keywords = post_data['keywords']
         articles_number = post_data['articles_number']
         # send_message('test1234', 'send.message', 'total_keywords',{ "total_keywords": len(keywords) })
-        krp = KeywordsResultsReport(keywords=keywords, number_of_articles=articles_number)
+        n_keywords = len(keywords) * articles_number
+        krp = KeywordsResultsReport(keywords=keywords, number_of_articles=articles_number, number_of_keywords=n_keywords)
+        # krp.set_number_of_articles()
         krp.save()
         for kw in keywords:
             print(f"kw: {kw}")

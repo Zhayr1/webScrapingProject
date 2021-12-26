@@ -12,12 +12,19 @@
 
 <body class="bg-secondary">
     <div class="container bg-white shadow-lg">
-        <div class="row bg-primary p-3 text-white">
-            <h3>Article Scraping</h3>
+        <div class="row bg-primary p-3 text-white justify-content-between">
+            <div class="col-auto">
+                <h3>Keywords Input</h3>
+            </div>
+            <div class="col-auto mw-auto">
+                <a href="{% url 'textSpin:index' %}" class="btn btn-warning">Keywords Input</a>
+                <a href="{% url 'textSpin:list' %}" class="btn btn-warning">Articles List</a>
+                <!-- <a href="">Keywords Input</a> -->
+            </div>
         </div>
         <div class="row pb-3">
             <div class="col-6">
-                <h1>Articles Input</h1>
+                <h1>Keywords Input</h1>
                 {% if error %}
                 <div class="alert alert-danger">{{ error }}</div>
                 {% endif %}
