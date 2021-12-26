@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ object }}"?</p>
-    <input type="submit" value="Confirm">
-</form>
+<div class="p-5">
+
+    <div class="col-6 m-auto p-2 alert alert-danger">
+        <form method="post">{% csrf_token %}
+            <p>Are you sure you want to delete "{{ object }}"?</p>
+            <input class="btn btn-danger" type="submit" value="Confirm">
+            <a href="{% url 'textSpin:list' %}" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -43,7 +43,7 @@
                             <td>{{ object.number_of_keywords }}</td>
                             <td>
                                 <a href="{% url 'textSpin:download_list' object.id %}" class="btn btn-primary">See All</a>
-                                <a href="{% url 'textSpin:download_list' object.id %}" class="btn btn-danger">Delete</a>
+                                <a href="{% url 'textSpin:delete' object.id %}" class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
                         {% endfor %}

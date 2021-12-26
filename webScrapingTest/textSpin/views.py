@@ -28,6 +28,7 @@ def request_download(request, pk):
 class ReportDeleteView(DeleteView):
     model = KeywordsResultsReport
     success_url = reverse_lazy('textSpin:list')
+    template_name = "keywordResultReport_confirm_delete.html"
 
 class SingleReportLinkList(ListView):
     template_name = 'linksList.html'
