@@ -20,22 +20,33 @@ def send_message(channel_name:str, type:str, payload_type, payload:dict):
 def get_paraphrased_text(text:str, driver:webdriver.Firefox, url:str):
     for i in range(3):
         try:
+            print("start get phrs text")
             driver.get(url)
-            time.sleep(2)
+            print("url got 2s sleep start")
+            time.sleep(5)
+            print("2s sleep pass, try to close captcha modal")
             try:
                 captcha_modal = driver.find_element_by_xpath('//*[@id="m2_bot_captcha"]')
                 driver.execute_script("arguments[0].setAttribute('class', 'absd')", captcha_modal)
-            except:
-                pass    
+                print("captcha modal closed")
+            except Exception as e:
+                print(f"error trying to close captcha modal: {e}")
+                pass
+            print("sending input to textarea")
             text_input = driver.find_element_by_xpath("/html/body/div[3]/div/div[1]/div[2]/textarea")
-            text_input.send_keys(text)
+            text_input.send_keys(text[:5000])
+            print("text send, 2s sleep start")
             time.sleep(2)
             # driver.implicitly_wait(2)
+            print("try to click phrs btn")
             driver.find_element_by_xpath('//*[@id="checkButton"]').click()
+            print("btn clicked, start 2s sleep")
             time.sleep(2)
             # driver.implicitly_wait(2)
+            print("try to get result text")
             out_input = driver.find_element_by_xpath('/html/body/div[3]/div/div[1]/div[4]/div[1]')
             result_text = out_input.get_attribute('innerText')
+            print("result text got")
             return result_text
         except:
             pass 
@@ -45,22 +56,34 @@ import time
 
 def selenium_get_paraphrased_article(object:SingleKeywordReport, url:str):
     try:
+        print("driver init")
         options = Options()
         options.headless = True
         # # options.add_argument("--window-size=1920,1080")
         driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+        print("Driver open")
+        print("start spin title")
         spin_title = get_paraphrased_text(object.article_title, driver, url)
+        print("end spin title and start 3s sleep")
         time.sleep(3)
+        print("end 3s sleep and start spin body")
         spin_body = get_paraphrased_text(object.article_body, driver, url)
+        print("end spin body and start 3s sleep")
         time.sleep(3)
         # print(f"Old Text: {object.article_title}")
         # print(f"Result Text: {spin_title}")
+        print("end 3s sleep and start validade data")
         if spin_title:
             object.article_title = spin_title
+            print("title validates")
         if spin_body:    
             object.article_body = " ".join(str(spin_body).split())
+            print("body validated")
         if spin_title or spin_body:
+            print("start try save object")
             object.save()
+            print("object saved")
+        print("selenium task end, going to close browser")
         driver.close()
         return object
     except:
@@ -224,6 +247,7 @@ import os
 def get_article_images(url, n_images):
     res = get_request(url)
     if res.status_code != 200:
+        print(f"status code failed: {res.status_code}")
         return None
     soup = BeautifulSoup(res.content, 'html.parser')
     imgs = soup.find_all()
@@ -239,12 +263,15 @@ import requests
 from io import open as iopen
  
 def fetch_image(img_ur, save_filename):
-    img = requests.get(img_ur)
-    if img.status_code == 200:
-        with iopen(save_filename, 'wb') as f:
-            f.write(img.content)
-    else:
-        print('Received error: {}'.format(img.status_code))
+    try:
+        img = requests.get(img_ur, timeout=3)
+        if img.status_code == 200:
+            with iopen(save_filename, 'wb') as f:
+                f.write(img.content)
+        else:
+            print(f"status code !=200: {img.status_code}")
+    except Exception as e:
+        print(f"Ex: {e}")
  
 
 def get_format(url:str) -> str:
