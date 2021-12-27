@@ -5821,3 +5821,91 @@ JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_
 
 ###!!! [Parent][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
 
+1640503566951	geckodriver	INFO	Listening on 127.0.0.1:51151
+1640503567186	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-headless" "--remote-debugging-port" "57673" "-no-remote" "-profile" "/tmp/rust_mozprofileiQkBgD"
+*** You are running in headless mode.
+1640503569881	Marionette	INFO	Marionette enabled
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofileiQkBgD/search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:57673/devtools/browser/6f468d79-a83b-4dbe-a94a-1774b5a17096
+1640503573021	Marionette	INFO	Listening on port 41635
+1640503573162	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+Failed to establish dbus connectionJavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/U_DPXy_vflqTjVU_YutWJm0axOJE633NQGMGFEhf2s0.js line 1 > eval line 612 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+1640503604002	Marionette	INFO	Stopped listening on port 41635
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+1640503606631	geckodriver	INFO	Listening on 127.0.0.1:45825
+1640503607137	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-headless" "--remote-debugging-port" "38635" "-no-remote" "-profile" "/tmp/rust_mozprofile2Q9Pa3"
+*** You are running in headless mode.
+1640503607643	Marionette	INFO	Marionette enabled
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofile2Q9Pa3/search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:38635/devtools/browser/69b7cd97-ae01-4a9e-8270-34ace42259dd
+1640503609878	Marionette	INFO	Listening on port 45593
+1640503609982	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+Failed to establish dbus connectionJavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/U_DPXy_vflqTjVU_YutWJm0axOJE633NQGMGFEhf2s0.js line 1 > eval line 3455 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+1640503634734	Marionette	INFO	Stopped listening on port 45593
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+[Parent 5012, IPC I/O Parent] WARNING: FileDescriptorSet destroyed with unconsumed descriptors: file /builddir/build/BUILD/firefox-95.0.2/ipc/chromium/src/chrome/common/file_descriptor_set_posix.cc:19
+
+###!!! [Parent][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+1640503639915	geckodriver	INFO	Listening on 127.0.0.1:39629
+1640503640422	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-headless" "--remote-debugging-port" "56517" "-no-remote" "-profile" "/tmp/rust_mozprofile8CFA3D"
+*** You are running in headless mode.
+1640503640911	Marionette	INFO	Marionette enabled
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofile8CFA3D/search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:56517/devtools/browser/7128eed9-7ae1-4616-8846-93c8e669df75
+1640503643020	Marionette	INFO	Listening on port 36525
+1640503643083	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+Failed to establish dbus connectionJavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/U_DPXy_vflqTjVU_YutWJm0axOJE633NQGMGFEhf2s0.js line 1 > eval line 5292 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+1640503668246	Marionette	INFO	Stopped listening on port 36525
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+[Parent 5394, IPC I/O Parent] WARNING: FileDescriptorSet destroyed with unconsumed descriptors: file /builddir/build/BUILD/firefox-95.0.2/ipc/chromium/src/chrome/common/file_descriptor_set_posix.cc:19
+
+###!!! [Parent][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+1640503670947	geckodriver	INFO	Listening on 127.0.0.1:46481
+1640503670953	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-headless" "--remote-debugging-port" "58863" "-no-remote" "-profile" "/tmp/rust_mozprofilevjki5G"
+*** You are running in headless mode.
+1640503671435	Marionette	INFO	Marionette enabled
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /tmp/rust_mozprofilevjki5G/search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:58863/devtools/browser/75b886db-615b-42b6-9f1c-694d9cc49433
+1640503673589	Marionette	INFO	Listening on port 40713
+1640503673745	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+Failed to establish dbus connectionJavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/U_DPXy_vflqTjVU_YutWJm0axOJE633NQGMGFEhf2s0.js line 1 > eval line 4801 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/U_DPXy_vflqTjVU_YutWJm0axOJE633NQGMGFEhf2s0.js line 1 > eval line 6896 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js, line 2: Using //@ to indicate sourceMappingURL pragmas is deprecated. Use //# instead
+JavaScript error: https://seotoolscentre.com/paraphrase-tool line 1 > injectedScript, line 3: ReferenceError: pgjs is not defined
+1640503699474	Marionette	INFO	Stopped listening on port 40713
+JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+[Parent 5767, IPC I/O Parent] WARNING: FileDescriptorSet destroyed with unconsumed descriptors: file /builddir/build/BUILD/firefox-95.0.2/ipc/chromium/src/chrome/common/file_descriptor_set_posix.cc:19
+
+###!!! [Parent][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
