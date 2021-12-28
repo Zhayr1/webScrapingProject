@@ -241,10 +241,16 @@ from io import open as iopen
 def fetch_image(img_ur, save_filename):
     img = requests.get(img_ur)
     if img.status_code == 200:
-        with iopen(save_filename, 'wb') as f:
-            f.write(img.content)
+        try:
+            with iopen(save_filename, 'wb') as f:
+                f.write(img.content)
+            return True    
+        except:
+            print("Error Saving the image")
+            return False    
     else:
         print('Received error: {}'.format(img.status_code))
+        return False
  
 
 def get_format(url:str) -> str:

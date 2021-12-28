@@ -6745,3 +6745,6 @@ JavaScript warning: https://m2d.m2.ai/pg.seotoolscentre.js, line 2: Failed to cr
 * WebglAllowWindowsNativeGl:false restricts context creation on this system. ()
 * Exhausted GL driver options. (FEATURE_FAILURE_WEBGL_EXHAUSTED_DRIVERS)
 [Parent 804, IPC I/O Parent] WARNING: FileDescriptorSet destroyed with unconsumed descriptors: file /builds/worker/checkouts/gecko/ipc/chromium/src/chrome/common/file_descriptor_set_posix.cc:19
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
