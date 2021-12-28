@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from .models import KeywordsResultsReport, SingleKeywordReport
+from .models import KeywordsResultsReport, SingleKeywordReport, ArticleImages
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.options import Options
@@ -20,22 +20,33 @@ def send_message(channel_name:str, type:str, payload_type, payload:dict):
 def get_paraphrased_text(text:str, driver:webdriver.Firefox, url:str):
     for i in range(3):
         try:
+            print("start get phrs text")
             driver.get(url)
-            time.sleep(2)
+            print("url got 2s sleep start")
+            time.sleep(5)
+            print("2s sleep pass, try to close captcha modal")
             try:
                 captcha_modal = driver.find_element_by_xpath('//*[@id="m2_bot_captcha"]')
                 driver.execute_script("arguments[0].setAttribute('class', 'absd')", captcha_modal)
-            except:
-                pass    
+                print("captcha modal closed")
+            except Exception as e:
+                print(f"error trying to close captcha modal: {e}")
+                pass
+            print("sending input to textarea")
             text_input = driver.find_element_by_xpath("/html/body/div[3]/div/div[1]/div[2]/textarea")
-            text_input.send_keys(text)
+            text_input.send_keys(text[:5000])
+            print("text send, 2s sleep start")
             time.sleep(2)
             # driver.implicitly_wait(2)
+            print("try to click phrs btn")
             driver.find_element_by_xpath('//*[@id="checkButton"]').click()
+            print("btn clicked, start 2s sleep")
             time.sleep(2)
             # driver.implicitly_wait(2)
+            print("try to get result text")
             out_input = driver.find_element_by_xpath('/html/body/div[3]/div/div[1]/div[4]/div[1]')
             result_text = out_input.get_attribute('innerText')
+            print("result text got")
             return result_text
         except:
             pass 
@@ -45,22 +56,34 @@ import time
 
 def selenium_get_paraphrased_article(object:SingleKeywordReport, url:str):
     try:
+        print("driver init")
         options = Options()
         options.headless = True
         # # options.add_argument("--window-size=1920,1080")
         driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+        print("Driver open")
+        print("start spin title")
         spin_title = get_paraphrased_text(object.article_title, driver, url)
+        print("end spin title and start 3s sleep")
         time.sleep(3)
+        print("end 3s sleep and start spin body")
         spin_body = get_paraphrased_text(object.article_body, driver, url)
+        print("end spin body and start 3s sleep")
         time.sleep(3)
         # print(f"Old Text: {object.article_title}")
         # print(f"Result Text: {spin_title}")
+        print("end 3s sleep and start validade data")
         if spin_title:
             object.article_title = spin_title
+            print("title validates")
         if spin_body:    
             object.article_body = " ".join(str(spin_body).split())
+            print("body validated")
         if spin_title or spin_body:
+            print("start try save object")
             object.save()
+            print("object saved")
+        print("selenium task end, going to close browser")
         driver.close()
         return object
     except:
@@ -138,8 +161,11 @@ def get_article_from_keyword(keyword:str, keyword_result_report:KeywordsResultsR
         if res:
             file_was_created = res.create_article_file()
             if file_was_created:
-                send_message('test1234', 'send.message', 'article_spun', { "article_spun": True })
-            return file_was_created
+                images_was_created = get_and_save_images_for_article(keyword, res)
+                if images_was_created:
+                    send_message('test1234', 'send.message', 'article_spun', { "article_spun": True })
+                    return True
+            return False
     return None        
 
 from bs4.element import Comment
@@ -202,10 +228,63 @@ def get_request(url):
 
 from datetime import date, datetime
 
+def validate_image_urls(urls:list, keyword:str) -> list:
+    article_images = ArticleImages.objects.filter(article__keyword=keyword)
+    pass
+
+def get_and_save_images_for_article(keyword:str, single_keyword_report:SingleKeywordReport, n_images:int = 3):
+    keyword = keyword.replace(' ','+')
+    images_content = []
+    url_counter = 1
+    for i in range(1000):
+        url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first={url_counter}"
+        url_counter += 10
+        images_content, success = get_article_images_content(url, n_images, images_content, keyword)
+        if success:
+            break
+    print(f"Got: {len(images_content)} images")
+
+def get_article_images_content(url:str, n_images:int, images:list, keyword:str) -> tuple:
+    try:
+        res = get_request(url)
+        if res.status_code != 200:
+            print(f"status code failed: {res.status_code}")
+            return None
+        soup = BeautifulSoup(res.content, 'html.parser')
+        imgs = soup.find_all()
+        image_urls = []
+        for img in imgs:
+            if img.get('m'):
+                mdata = json.loads(img.get('m'))
+                if len(image_urls) < n_images:
+                    image_urls.append(mdata['murl'])
+        image_urls = validate_image_urls(image_urls, keyword)
+        if not image_urls:
+            return (images, False)
+
+        for url in image_urls:
+            img = get_request(url)
+            if img.status_code == 200:
+                if len(images) < n_images:
+                    images.append(img.content)
+                else:
+                    break
+        if len(images) < n_images:
+            return (images, False)
+        else:
+            return (images, True)
+    except Exception as e:
+        print(f"Exception getting images: {e}")
+        return (images, False)
+
 def get_and_save_images(keyword:str, articles_number:int):
     keyword = keyword.replace(' ','+')
-    url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first=1"
-    img_urls = get_article_images(url, articles_number*3)
+    img_urls = []
+    url_counter = 1
+    for i in range(1000):
+        url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first={url_counter}"
+        url_counter += 10
+        img_urls = get_article_images(url, articles_number*3, img_urls)
 
     path = f"media/articles/{keyword.replace('+', '_')}"
     try:
@@ -221,35 +300,36 @@ def get_and_save_images(keyword:str, articles_number:int):
             fetch_image(url, f"media/articles/{img_name}/{datetime.now()}_{img_name}.{img_format}")
 
 import os
-def get_article_images(url, n_images):
+
+def get_article_images(url:str, n_images:int, image_urls:str) -> list:
     res = get_request(url)
     if res.status_code != 200:
+        print(f"status code failed: {res.status_code}")
         return None
     soup = BeautifulSoup(res.content, 'html.parser')
     imgs = soup.find_all()
-    murls = []
     for img in imgs:
         if img.get('m'):
             mdata = json.loads(img.get('m'))
-            if len(murls) < n_images:
-                murls.append(mdata['murl'])
-    return murls            
+            if len(image_urls) < n_images:
+                image_urls.append(mdata['murl'])
+    return image_urls            
 
 import requests
 from io import open as iopen
  
-def fetch_image(img_ur, save_filename):
-    img = requests.get(img_ur)
-    if img.status_code == 200:
-        try:
+def fetch_image(img_ur:str, save_filename:str) -> bool:
+    try:
+        img = requests.get(img_ur, timeout=3)
+        if img.status_code == 200:
             with iopen(save_filename, 'wb') as f:
                 f.write(img.content)
-            return True    
-        except:
-            print("Error Saving the image")
-            return False    
-    else:
-        print('Received error: {}'.format(img.status_code))
+            return True
+        else:
+            print(f"status code !=200: {img.status_code}")
+            return False
+    except Exception as e:
+        print(f"Ex: {e}")
         return False
  
 

@@ -65,3 +65,4 @@ webdriver-manager==3.5.2
 wrapt==1.13.3
 wsproto==1.0.0
 zope.interface==5.4.0
+tzdata

@@ -37,3 +37,12 @@ class SingleKeywordReport(models.Model):
             return True
         except:
             return False
+
+class ArticleImages(models.Model):
+    article = models.ForeignKey(SingleKeywordReport, on_delete=models.CASCADE)
+    image_1 = models.CharField(max_length=1024)
+    image_2 = models.CharField(max_length=1024)
+    image_3 = models.CharField(max_length=1024)
+
+    def get_images_urls(self) -> list:
+        return [ self.image_1, self.image_2, self.image_3 ]
