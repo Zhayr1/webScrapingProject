@@ -24,7 +24,27 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <table class="table">
+                <div class=" mt-4">
+                    <h5>Download Folders</h5>
+                    <hr>
+                    {% for keyword in keywords %}
+                    <div class="row">
+
+                        <div class="col-3">
+                            <p>
+                                {{keyword|truncatechars:50}}
+                            </p>
+                        </div>
+                        <div class="col-3">
+                            <a href="{% url 'textSpin:download_zip' pk=skr_id keyword=keyword %}"
+                                class="btn btn-success">Download Folder
+                            </a>
+                        </div>
+                    </div>
+                    <hr>
+                    {% endfor %}
+                </div>
+                <table class="table d-none">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -40,10 +60,58 @@
                             <td>{{ object.keyword }}</td>
                             <td>{{ object.article_title }}</td>
                             <td>
-                                <a href="{% url 'textSpin:download_file' object.id %}" class="btn btn-success">Download</a>
+                                <a href="{% url 'textSpin:download_file' object.id %}"
+                                    class="btn btn-success">Download</a>
                             </td>
                         </tr>
                         {% endfor %}
+                    </tbody>
+                </table>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Keyword</th>
+                            <th scope="col">Article Title</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for object in images_list %}
+                        <tr>
+                            <th scope="row">{{ object.article.id }}</th>
+                            <td>{{ object.article.keyword }}</td>
+                            <td>{{ object.article.article_title }}</td>
+                            <td>
+                                <a href="{% url 'textSpin:download_file' object.article.id %}"
+                                    class="btn btn-success">Download</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <a href="{% url 'textSpin:download_image' object.pk 1 %}">
+                                    <img class="img-fluid img-thumbnail" style="width: 200px;height: 200px;"
+                                        src="{% url 'textSpin:download_image' pk=object.pk img_index=1 %}" alt="">
+                                </a>
+                            </th>
+                            <td>
+                                <a href="{% url 'textSpin:download_image' object.pk 2 %}">
+                                    <img class="img-fluid img-thumbnail" style="width: 200px;height: 200px;"
+                                        src="{% url 'textSpin:download_image' pk=object.pk img_index=2 %}" alt="">
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'textSpin:download_image' object.pk 3 %}">
+                                    <img class="img-fluid img-thumbnail" style="width: 200px;height: 200px;"
+                                        src="{% url 'textSpin:download_image' pk=object.pk img_index=3 %}" alt="">
+                                </a>
+                            </td>
+                            <td>
+                                <!-- <a href="{% url 'textSpin:download_file' object.id %}" class="btn btn-success">Download</a> -->
+                            </td>
+                        </tr>
+                        {% endfor %}
+
                     </tbody>
                 </table>
                 </ul>

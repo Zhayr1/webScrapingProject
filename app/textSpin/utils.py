@@ -8,6 +8,9 @@ import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from urllib.parse import urlparse 
+from io import open as iopen
+import os
+from datetime import datetime
 
 def send_message(channel_name:str, type:str, payload_type, payload:dict):
     channel_layer = get_channel_layer()
@@ -179,7 +182,8 @@ def tag_visible(element):
 
 def text_from_html(body):
     soup = BeautifulSoup(body, 'html.parser')
-    texts = soup.findAll(text=True)
+    # texts = soup.findAll(text=True)
+    texts = soup.body.string
     visible_texts = filter(tag_visible, texts)
     return u" ".join(t.strip() for t in visible_texts)
 
@@ -207,7 +211,8 @@ def get_title_and_body_from_url(url:str, keyword:str, single_report:SingleKeywor
         return None
     soup = BeautifulSoup(res.content, 'html.parser')
     title = soup.title.string
-    body = text_from_html(res.content)
+    # body = text_from_html(res.content)
+    body = soup.body.text
     # print(soup.body)
     single_report.keyword = keyword
     single_report.article_title = title
@@ -230,19 +235,71 @@ from datetime import date, datetime
 
 def validate_image_urls(urls:list, keyword:str) -> list:
     article_images = ArticleImages.objects.filter(article__keyword=keyword)
-    pass
+    saved_images_urls = []
+    valid_urls = []
+    if article_images:
+        for images in article_images:
+            img_urls = images.get_images_urls()
+            if img_urls:
+                for iurl in img_urls:
+                    saved_images_urls.append(iurl)
+        if saved_images_urls:
+            valid_urls = validate_links(urls, saved_images_urls)
+            return valid_urls
+    return urls                
 
-def get_and_save_images_for_article(keyword:str, single_keyword_report:SingleKeywordReport, n_images:int = 3):
-    keyword = keyword.replace(' ','+')
-    images_content = []
-    url_counter = 1
-    for i in range(1000):
-        url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first={url_counter}"
-        url_counter += 10
-        images_content, success = get_article_images_content(url, n_images, images_content, keyword)
-        if success:
-            break
-    print(f"Got: {len(images_content)} images")
+def get_and_save_images_for_article(keyword:str, skr:SingleKeywordReport, n_images:int = 3):
+    try:
+        url_keyword = keyword.replace(' ','+')
+        images_content = []
+        url_counter = 1
+        for i in range(1000):
+            url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={url_keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first={url_counter}"
+            url_counter += 10
+            images_content, success = get_article_images_content(url, n_images, images_content, keyword)
+            if success:
+                break
+            print(f"Not success, n images: {len(images_content)}")
+        print(f"Got: {len(images_content)} images")
+        path = f"media/articles/{keyword.replace(' ','_')}"
+        article_images = ArticleImages.objects.create(article=skr)
+        for i in range(len(images_content)):
+            img_content = images_content[i][0]
+            img_format = images_content[i][1]
+            img_url = images_content[i][2]
+            filename = f"{skr.id}_image_{i}.{img_format}"
+            img_saved = save_image(path, filename, img_content)
+            if img_saved:
+                if i <= 3:
+                    article_images.set_image_url( i+1, img_url)
+                    article_images.set_image_path( i+1, path + f'/images/{filename}')
+
+        article_images.save()
+        print("article image saved")
+        return True
+    except Exception as e:
+        print(f"Error in get_and_save_image_for_article: {e}")
+        return False
+
+
+def save_image(path:str, filename:str, img_content):
+    img_path = path + '/images'
+    try:
+        os.mkdir(path)
+    except:
+        pass
+    try:
+        os.mkdir(img_path)
+    except:
+        pass
+    save_filename = img_path + f'/{filename}'
+    try:
+        with iopen(save_filename, 'wb') as f:
+            f.write(img_content)
+            return True
+    except Exception as e: 
+        print(f"Error saving image: {e}")
+        return False
 
 def get_article_images_content(url:str, n_images:int, images:list, keyword:str) -> tuple:
     try:
@@ -266,7 +323,7 @@ def get_article_images_content(url:str, n_images:int, images:list, keyword:str) 
             img = get_request(url)
             if img.status_code == 200:
                 if len(images) < n_images:
-                    images.append(img.content)
+                    images.append( (img.content, get_format(url), url) )
                 else:
                     break
         if len(images) < n_images:
@@ -277,60 +334,60 @@ def get_article_images_content(url:str, n_images:int, images:list, keyword:str) 
         print(f"Exception getting images: {e}")
         return (images, False)
 
-def get_and_save_images(keyword:str, articles_number:int):
-    keyword = keyword.replace(' ','+')
-    img_urls = []
-    url_counter = 1
-    for i in range(1000):
-        url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first={url_counter}"
-        url_counter += 10
-        img_urls = get_article_images(url, articles_number*3, img_urls)
+# def get_and_save_images(keyword:str, articles_number:int):
+#     keyword = keyword.replace(' ','+')
+#     img_urls = []
+#     url_counter = 1
+#     for i in range(1000):
+#         url = f"https://www.bing.com/images/search?tsc=ImageBasicHover&q={keyword}+site%3awordpress.com&qft=+filterui:imagesize-large&form=IRFLTR&first={url_counter}"
+#         url_counter += 10
+#         img_urls = get_article_images(url, articles_number*3, img_urls)
 
-    path = f"media/articles/{keyword.replace('+', '_')}"
-    try:
-        os.mkdir(path)
-    except:
-        pass
-    if img_urls:
-        for i in range(len(img_urls)):
-            url = img_urls[i]
-            img_name = keyword.replace('+','_')
-            img_format = get_format(url)
+#     path = f"media/articles/{keyword.replace('+', '_')}"
+#     try:
+#         os.mkdir(path)
+#     except:
+#         pass
+#     if img_urls:
+#         for i in range(len(img_urls)):
+#             url = img_urls[i]
+#             img_name = keyword.replace('+','_')
+#             img_format = get_format(url)
 
-            fetch_image(url, f"media/articles/{img_name}/{datetime.now()}_{img_name}.{img_format}")
+#             fetch_image(url, f"media/articles/{img_name}/{datetime.now()}_{img_name}.{img_format}")
 
-import os
+# import os
 
-def get_article_images(url:str, n_images:int, image_urls:str) -> list:
-    res = get_request(url)
-    if res.status_code != 200:
-        print(f"status code failed: {res.status_code}")
-        return None
-    soup = BeautifulSoup(res.content, 'html.parser')
-    imgs = soup.find_all()
-    for img in imgs:
-        if img.get('m'):
-            mdata = json.loads(img.get('m'))
-            if len(image_urls) < n_images:
-                image_urls.append(mdata['murl'])
-    return image_urls            
+# def get_article_images(url:str, n_images:int, image_urls:str) -> list:
+#     res = get_request(url)
+#     if res.status_code != 200:
+#         print(f"status code failed: {res.status_code}")
+#         return None
+#     soup = BeautifulSoup(res.content, 'html.parser')
+#     imgs = soup.find_all()
+#     for img in imgs:
+#         if img.get('m'):
+#             mdata = json.loads(img.get('m'))
+#             if len(image_urls) < n_images:
+#                 image_urls.append(mdata['murl'])
+#     return image_urls            
 
-import requests
-from io import open as iopen
+# import requests
+# from io import open as iopen
  
-def fetch_image(img_ur:str, save_filename:str) -> bool:
-    try:
-        img = requests.get(img_ur, timeout=3)
-        if img.status_code == 200:
-            with iopen(save_filename, 'wb') as f:
-                f.write(img.content)
-            return True
-        else:
-            print(f"status code !=200: {img.status_code}")
-            return False
-    except Exception as e:
-        print(f"Ex: {e}")
-        return False
+# def fetch_image(img_ur:str, save_filename:str) -> bool:
+#     try:
+#         img = requests.get(img_ur, timeout=3)
+#         if img.status_code == 200:
+#             with iopen(save_filename, 'wb') as f:
+#                 f.write(img.content)
+#             return True
+#         else:
+#             print(f"status code !=200: {img.status_code}")
+#             return False
+#     except Exception as e:
+#         print(f"Ex: {e}")
+#         return False
  
 
 def get_format(url:str) -> str:

@@ -40,9 +40,38 @@ class SingleKeywordReport(models.Model):
 
 class ArticleImages(models.Model):
     article = models.ForeignKey(SingleKeywordReport, on_delete=models.CASCADE)
-    image_1 = models.CharField(max_length=1024)
-    image_2 = models.CharField(max_length=1024)
-    image_3 = models.CharField(max_length=1024)
+    url_image_1 = models.CharField(max_length=1024, default="")
+    url_image_2 = models.CharField(max_length=1024, default="")
+    url_image_3 = models.CharField(max_length=1024, default="")
+
+    path_image_1 = models.CharField(max_length=1024, default="")
+    path_image_2 = models.CharField(max_length=1024, default="")
+    path_image_3 = models.CharField(max_length=1024, default="")
 
     def get_images_urls(self) -> list:
-        return [ self.image_1, self.image_2, self.image_3 ]
+        return [ self.url_image_1, self.url_image_2, self.url_image_3 ]
+
+    def set_image_url(self, index:int, url:str):
+        if index == 1:
+            self.url_image_1 = url
+        elif index == 2:
+            self.url_image_2 = url
+        elif index == 3:
+            self.url_image_3 = url  
+
+    def set_image_path(self, index:int, path:str):
+        if index == 1:
+            self.path_image_1 = path
+        elif index == 2:
+            self.path_image_2 = path
+        elif index == 3:
+            self.path_image_3 = path
+
+    def get_image_path(self, index):
+        if index == 1:
+            return self.path_image_1
+        elif index == 2:
+            return self.path_image_2
+        elif index == 3:
+            return self.path_image_3
+        return None    

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import KeywordsResultsReport, SingleKeywordReport
+from .models import KeywordsResultsReport, SingleKeywordReport, ArticleImages
 from .tasks import process_scraping_request_task
 from django.views.generic import ListView
 
@@ -11,6 +11,7 @@ from django.views.generic.edit import DeleteView
 
 def request_download(request, pk):
     try:
+        print(f"pk: {pk}")
         req = SingleKeywordReport.objects.get(pk=pk)
         file_path = f"media/articles/{req.keyword.replace(' ','_')}/{req.id}_{req.keyword.replace(' ','_')}.txt"
         # file_path = os.path.join(settings.MEDIA_ROOT, fname)
@@ -18,6 +19,56 @@ def request_download(request, pk):
         with open(file_path, 'rb') as fh:
             response = HttpResponse(
                 fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename=' + \
+                os.path.basename(file_path)
+            return response
+    except Exception as e:
+        print(f"Ex: {e}")
+        raise Http404
+
+import shutil
+
+def request_image_download(request, pk, img_index):
+    try:
+        req = ArticleImages.objects.get(pk=pk)
+        path = req.get_image_path(img_index)
+        if not path:
+            print(f"Fail Path: {path}")
+            return Http404
+        with open(path, 'rb') as fh:
+            response = HttpResponse(
+                fh.read(), content_type="application/zip")
+            response['Content-Disposition'] = 'inline; filename=' + \
+                os.path.basename(path)
+            fh.close()    
+            return response
+        pass
+    except Exception as e:
+        print(f"Ex: {e}")
+        return Http404
+        pass
+    pass
+
+def request_zip_download(request, pk, keyword):
+    try:
+        keyword = keyword.replace('_',' ')
+        req = SingleKeywordReport.objects.filter(report__id=pk, keyword=keyword)
+        if req:
+            req = req[0]
+        else:
+            raise Exception("Request not found")    
+        file_path = f"media/articles/{req.keyword.replace(' ','_')}"
+        print(f"File Path: {file_path}")
+        zip_files_path = 'media/articles/zip'
+        try:
+            os.mkdir(zip_files_path)
+        except:
+            pass
+        created = shutil.make_archive(f"{zip_files_path}/{req.keyword.replace(' ','_')}", 'zip', file_path)
+        zip_path = zip_files_path + f'/{req.keyword.replace(" ","_")}.zip'
+        with open(zip_path, 'rb') as fh:
+            response = HttpResponse(
+                fh.read(), content_type="application/zip")
             response['Content-Disposition'] = 'inline; filename=' + \
                 os.path.basename(file_path)
             return response
@@ -38,10 +89,23 @@ class SingleReportLinkList(ListView):
     def get_queryset(self):
         return self.model.objects.filter(report__id=self.kwargs['pk'])
 
-    # def get_context_data(self, **kwargs):
-        # context = super().get_context_data(**kwargs)
-        # context['skr_list'] = SingleKeywordReport.objects.filter(report__id=self.kwargs['pk'])
-        # return context    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['skr_id'] = self.kwargs['pk']
+        keywords = []
+        images = []
+        res = SingleKeywordReport.objects.filter(report__id=self.kwargs['pk'])
+        for skr in res:
+            keywords.append(skr.keyword.replace(' ','_'))
+            try:
+                images.append(ArticleImages.objects.get(article=skr))
+            except:
+                pass    
+        keywords = list(set(keywords))
+        context['keywords'] = keywords
+        context['images_list'] = images
+        # context['images_list'] = 
+        return context    
 
 class KeywordResultsView(ListView):
     template_name = "resultsListView.html"

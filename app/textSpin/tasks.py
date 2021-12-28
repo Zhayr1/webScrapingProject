@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .utils import get_article_from_keyword, get_and_save_images
+from .utils import get_article_from_keyword
 from .models import KeywordsResultsReport, SingleKeywordReport
 from .utils import send_message
 
@@ -18,10 +18,10 @@ def process_scraping_request_task(post_data):
         krp.save()
         for kw in keywords:
             print(f"kw: {kw}")
-            try:
-                get_and_save_images(kw, articles_number)
-            except:
-                print('error while fetching images')    
+            # try:
+            #     get_and_save_images(kw, articles_number)
+            # except:
+            #     print('error while fetching images')    
             for i in range(articles_number):
                 res = start_scraping_task(kw, krp.id)
                 # if res:
