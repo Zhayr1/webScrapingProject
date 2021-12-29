@@ -93,12 +93,15 @@ DATABASES = {
 #         "BACKEND": "channels.layers.InMemoryChannelLayer"
 #     }
 # }
+
+redis_password = os.environ.get('redis_password')
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             # "hosts": [('redis://localhost:6379/0')],
-            "hosts": [('redis://redis:6379/0')],
+            "hosts": [(f'redis://:{redis_password}@redis:6379/0')],
         },
     },
 }
@@ -166,7 +169,9 @@ STATICFILES_FINDERS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-BROKER_URL = 'redis://localhost:6379/0'
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+#BROKER_URL = 'redis://localhost:6379/0'
+#BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL = f'redis://:{redis_password}@redis:6379/0'
+CELERY_BROKER_URL = f'redis://:{redis_password}@redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

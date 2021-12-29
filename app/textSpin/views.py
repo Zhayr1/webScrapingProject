@@ -119,7 +119,13 @@ def articleScrapingView(request):
         try:
             file = request.FILES['keywords_file']
             keywords = str(file.read().decode('UTF-8'))
-            keywords = keywords.splitlines()
+            aux_keywords = keywords.splitlines()
+            keywords = []
+            for kw in aux_keywords:
+                if kw:
+                    keywords.append(kw)
+            if not keywords:
+                raise Exception("File empty")
         except Exception as e:
             print(f"ex: {e}")
             return render(request, template_name, {'error':'you must attach a keyword_file.txt'})

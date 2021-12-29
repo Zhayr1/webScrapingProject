@@ -119,6 +119,8 @@ def validate_links(links, spinLinks):
         for spinLink in spinLinks:
             if spinLink:
                 # print(f"spinLink: {spinLink} is in: {link}: {spinLink in link}")
+                if spinLink == "wordpress.com":
+                    break
                 if spinLink in link:
                     print(f"{spinLink} in {link} = {spinLink in link}")
                     flag = True

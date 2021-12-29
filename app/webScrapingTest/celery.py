@@ -13,7 +13,7 @@ app.config_from_object('django.conf:settings')
 # app.conf.broker_url = 'redis://localhost:6379/0'
 # app.conf.result_backend = 'redis://localhost:6379/0'
 
-app.conf.broker_url = 'redis://redis:6379/0'
-app.conf.result_backend = 'redis://redis:6379/0'
+#app.conf.broker_url = 'redis://redis:6379/0'
+#app.conf.result_backend = 'redis://redis:6379/0'
 
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
